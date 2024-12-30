@@ -1,13 +1,21 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { FaRegCalendarPlus, FaTrashCan } from "react-icons/fa6"
 import { nanoid } from 'nanoid'
 
 const page = () => {
+  const firstRender = useRef(false)
 
-
-  const List = localStorage.getItem('List') ? JSON.parse(localStorage.getItem('List')) : []
-  const [list, setList] = useState(List)
+  const getList = () => {
+    try{
+      const List = window.localStorage.getItem('List')
+      return List ? JSON.parse(List) : []
+    }
+    catch(error){
+      return []
+    }
+  }
+  const [list, setList] = useState(getList)
 
   const addToList = (FormData) => { 
     setList(prev => [...prev, {id: nanoid(), task: `${FormData.get("List")}`}])
@@ -16,9 +24,14 @@ const page = () => {
   const deleteFromList = (id) => {
     setList(prev => prev.filter(item => item.id !== id)) 
   }
-
-  localStorage.setItem('List', JSON.stringify(list))
-
+  
+  useEffect(() =>{
+      if(!firstRender){
+        firstRender.current = true
+        return
+      }
+      window.localStorage.setItem('List', JSON.stringify(list))
+  },[list])
   return (
     <div className='min-h-[200px] mt-20 mx-auto bg-zinc-900 max-w-[350px]'>
       <span className="flex gap-x-3 p-5">
